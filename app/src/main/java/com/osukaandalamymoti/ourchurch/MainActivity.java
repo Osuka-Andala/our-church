@@ -6,13 +6,26 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.osukaandalamymoti.ourchurch.Fragments.BibleFragment;
+import com.osukaandalamymoti.ourchurch.Fragments.EventsFragment;
+import com.osukaandalamymoti.ourchurch.Fragments.HomeFragment;
+import com.osukaandalamymoti.ourchurch.Fragments.MoreFragment;
+import com.osukaandalamymoti.ourchurch.Fragments.MusicFragment;
+import com.osukaandalamymoti.ourchurch.Utils.SlidingTabLayout;
+
 public class MainActivity extends AppCompatActivity {
+    SlidingTabLayout tabs;
+    ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,14 +34,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
 
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -37,8 +43,19 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor edit = preferences.edit();
             edit.putBoolean("previouslyStarted", true).apply();
             Intent intent = new Intent(this, Splash.class);
-            startActivity(intent);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);   
         }
+
+
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        MainPagerAdapter mainPagerAdapter = new MainPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(mainPagerAdapter);
+        tabs = (SlidingTabLayout) findViewById(R.id.tabs);
+        tabs.setDistributeEvenly(true);
+        tabs.setSelectedIndicatorColors(getResources().getColor(R.color.colorPrimary));
+        tabs.setViewPager(viewPager);
     }
 
     @Override
@@ -57,9 +74,74 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+
+    private static class MainPagerAdapter extends FragmentPagerAdapter {
+
+        public int getMyNotsCount() {
+            return myNotsCount;
+        }
+
+        public void setMyNotsCount(int myNotsCount) {
+            this.myNotsCount = myNotsCount;
+        }
+
+        private int myNotsCount;
+
+        public MainPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return new HomeFragment();
+                case 1:
+                    return new EventsFragment();
+                case 2:
+                    return new BibleFragment();
+                case 3:
+                    return new MusicFragment();
+
+            }
+            return null;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position){
+                case 0:
+                    return "Home";
+                case 1:
+                    return "Events";
+                case 2:
+                    return "Bible";
+                case 3:
+                    return "MUsic";
+
+            }
+            return super.getPageTitle(position);
+        }
+
+        @Override
+        public int getCount() {
+            return 4;
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return super.getItemPosition(object);
+        }
+
+    }
+
 }
